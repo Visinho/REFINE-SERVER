@@ -64,7 +64,7 @@ const getAllProperties = async (req, res) => {
 
     try {
 
-        //get number of documents
+    //get number of documents
     const count = await Property.countDocuments({query});
 
     //find these documents through specified parameters
