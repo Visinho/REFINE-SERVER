@@ -88,7 +88,10 @@ const getAllProperties = async (req, res) => {
 
 
 const getPropertyDetail = async (req, res) => {
+    // To get the ID of a property
     const { id } = req.params;
+
+    //To get a particular property
     const propertyExists = await Property.findOne({ _id: id}).populate("creator");
 
     if(propertyExists) 
@@ -99,11 +102,34 @@ const getPropertyDetail = async (req, res) => {
 };
 
 
-const updateProperty = async (req, res) => {};
+const updateProperty = async (req, res) => {
+    try {
+        // To get the ID of a property
+        const {id} = req.params;
+        const { title, description, propertyType, location, price, photo } = req.body;
+
+        //uploading photos to cloudinary
+        const photourl = await cloudinary.uploader.upload(photo);
+
+        await Property.findByIdAndUpdate({ _id: id }, {
+            title,
+            description,
+            propertyType,
+            location,
+            price,
+            photo: photourl.url || photo
+        })
+
+        res.status(200).json({message: "Property Updated Successfully"})
+    } catch (error) {
+        res.status(500).json({message: "An error occured!"})
+    }
+};
 
 
 const deleteProperty = async (req, res) => {
     try {
+        // To get the ID of a property
         const {id} = req.params;
         const propertyToDelete = await Property.findById({_id:id}).populate("creator");
         if(!propertyToDelete){
@@ -112,7 +138,6 @@ const deleteProperty = async (req, res) => {
         const session = await mongoose.startSession();
         session.startTransaction();
 
-        // propertyToDelete.remove({session});
         propertyToDelete.deleteOne({ _id: id }, { session });
         propertyToDelete.creator.allProperties.pull(propertyToDelete);
 
