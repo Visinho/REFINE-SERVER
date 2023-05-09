@@ -1,7 +1,14 @@
 import User from "../mongodb/models/user.js";
 
 const getAllUsers = async (req, res) => {
-
+    try {
+        // Find all users and set a limit
+        const users = await User.find({}).limit(req.query._end);
+        
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ message: error.message })
+    }
 };
 
 
